@@ -1,0 +1,3 @@
+date_tolerance_days: 3
+amount_tolerance: 0.10
+notes: "Acquirer allows minor adjustments and 3-day window."

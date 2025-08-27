@@ -1,0 +1,3 @@
+date_tolerance_days: 1
+amount_tolerance: 0.00
+notes: "Stricter issuer batch ISS-001: only 1 day window."

@@ -1,0 +1,20 @@
+<batch>
+      <batch_id>ISS-XML-01</batch_id>
+      <side>issuer</side>
+      <txns>
+            <txn>
+                  <rrn>R001</rrn>
+                  <pan>****1111</pan>
+                  <amount>50.00</amount>
+                  <currency>EUR</currency>
+                  <date>2025-08-09</date>
+            </txn>
+            <txn>
+                  <rrn>R002</rrn>
+                  <pan>****2222</pan>
+                  <amount>20.00</amount>
+                  <currency>EUR</currency>
+                  <date>2025-08-09</date>
+            </txn>
+      </txns>
+</batch>

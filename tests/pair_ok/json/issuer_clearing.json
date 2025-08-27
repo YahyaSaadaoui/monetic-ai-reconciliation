@@ -1,0 +1,4 @@
+{"batch_id":"ISS-001","txns":[
+{"rrn":"R001","pan":"****1111","amount":50.00,"currency":"EUR","date":"2025-08-09"},
+{"rrn":"R002","pan":"****2222","amount":20.00,"currency":"EUR","date":"2025-08-09"}
+]}

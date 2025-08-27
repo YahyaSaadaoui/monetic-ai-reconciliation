@@ -1,0 +1,4 @@
+{"batch_id":"ACQ-AMT","txns":[
+{"rrn":"R001","pan":"****1111","amount":12.35,"currency":"EUR","date":"2025-08-08"},
+{"rrn":"R002","pan":"****2222","amount":20.50,"currency":"EUR","date":"2025-08-08"}
+]}

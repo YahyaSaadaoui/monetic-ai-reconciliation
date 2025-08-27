@@ -1,11 +1,11 @@
 # ui_tools.py
 import os, json, tempfile
 from pathlib import Path
-from l4_reversal_orchestrator import run_pipeline_batch
+from l4_clearing_recon import run_pipeline_batch
 from agno.tools import tool
 
 # re-use your existing pure funcs & constants
-from l4_reversal_orchestrator import (
+from l4_clearing_recon import (
     load_case_impl,
     resolve_rules_impl,
     validate_case_impl,
@@ -56,7 +56,7 @@ def process_uploaded_file(filename: str, content_b64: str) -> dict:
                 with zipfile.ZipFile(zippath, "r") as zf:
                     zf.extractall(tmpdir)
                 # run your existing batch pipeline on the extracted folder
-                from l4_reversal_orchestrator import run_pipeline_batch
+                from l4_clearing_recon import run_pipeline_batch
                 summary = run_pipeline_batch(tmpdir, out_dir="out")
                 return {"batch_summary": summary}
 

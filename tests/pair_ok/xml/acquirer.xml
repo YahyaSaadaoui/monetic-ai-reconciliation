@@ -1,0 +1,20 @@
+<batch>
+      <batch_id>ACQ-XML-77</batch_id>
+      <side>acquirer</side>
+      <txns>
+            <txn>
+                  <rrn>R001</rrn>
+                  <pan>****1111</pan>
+                  <amount>50.00</amount>
+                  <currency>EUR</currency>
+                  <date>2025-08-09</date>
+            </txn>
+            <txn>
+                  <rrn>R003</rrn>
+                  <pan>****3333</pan>
+                  <amount>20.00</amount>
+                  <currency>EUR</currency>
+                  <date>2025-08-09</date>
+            </txn>
+      </txns>
+</batch>

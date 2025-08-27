@@ -1,0 +1,5 @@
+date_tolerance_days: 2        # accept ±2 days between issuer/acquirer presentments
+amount_tolerance: 0.00        # exact match by default (set e.g. 0.10 for 10 cents tolerance)
+pairing:
+  min_rrn_overlap: 1          # min shared RRNs to accept a pair in archives
+  prefer_filename_side_hints: true
