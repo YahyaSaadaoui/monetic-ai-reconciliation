@@ -13,6 +13,8 @@ from agno.tools import tool
 from agno.agent import Agent
 from agno.models.google import Gemini
 from pydantic import BaseModel, Field, ValidationError, condecimal
+from dotenv import load_dotenv
+load_dotenv("env.dev", override=True)
 
 # ---- Config ----
 MODEL_ID = os.getenv("MODEL_ID", "gemini-1.5-flash")

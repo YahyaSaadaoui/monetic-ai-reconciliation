@@ -2,7 +2,9 @@
 # File: ui_recon_tools.py
 # Purpose: FastAPI endpoints + Agno tools for uploads (enforce 2 files or 1 archive)
 # ===============================
-
+from pathlib import Path
+from dotenv import load_dotenv
+load_dotenv(Path(__file__).with_name("env.dev"), override=True)
 import base64
 from fastapi import FastAPI, UploadFile, File, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
@@ -19,6 +21,11 @@ from l4_clearing_recon import (
     reconcile_archive,
     recon_planner,
 )
+from agno.agent import Agent
+from agno.models.google import Gemini
+from l4_clearing_recon import MODEL_ID
+import tempfile
+import uvicorn
 
 AGENT_DB = "tmp/agents.db"
 os.makedirs("tmp", exist_ok=True)
@@ -40,7 +47,7 @@ def recall_last_recon() -> dict:
 
 recon_agent = Agent(
     name="Recon Agent",
-    model=Gemini(id=MODEL_ID),
+    model=Gemini(id=MODEL_ID, api_key=os.getenv("GOOGLE_API_KEY")),
     tools=[parse_clearing_file, reconcile_pair, reconcile_archive, remember_last_recon, recall_last_recon],
     instructions=[
         "You reconcile only when exactly two clearing files are provided, or when a single archive (.zip/.rar) is provided.",
@@ -54,11 +61,12 @@ recon_agent = Agent(
     markdown=True,
 )
 
-playground = Playground(agents=[recon_agent])
-app = playground.get_app()
+# playground = Playground(agents=[recon_agent])
+# app = playground.get_app()
+api_app = FastAPI(title="Clearing Recon API")
 
 # Strong upload contract: exactly 2 files OR exactly 1 archive (.zip/.rar)
-@app.post("/reconcile")
+@api_app.post("/reconcile")
 async def reconcile_upload(files: list[UploadFile] = File(...)):
     try:
         if not files:
@@ -104,7 +112,7 @@ async def reconcile_upload(files: list[UploadFile] = File(...)):
         raise HTTPException(status_code=400, detail=str(e))
 
 # CORS for local dev
-app.add_middleware(
+api_app.add_middleware(
     CORSMiddleware,
     allow_origin_regex=r"^https?://(localhost|127\.0\.0\.1|0\.0\.0\.0|192\.168\.[0-9]{1,3}\.[0-9]{1,3}|10\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}|172\.(1[6-9]|2\d|3[0-1])\.[0-9]{1,3}\.[0-9]{1,3})(:\d+)?$",
     allow_credentials=False,
@@ -113,5 +121,4 @@ app.add_middleware(
 )
 
 if __name__ == "__main__":
-    import uvicorn
-    uvicorn.run("ui_recon_tools:app", host="127.0.0.1", port=7788, reload=True)
+    uvicorn.run("ui_recon_tools:api_app", host="127.0.0.1", port=7788, reload=True)

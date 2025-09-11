@@ -9,7 +9,9 @@ from l4_clearing_recon import (
     reconcile,
     ReconConfig,
 )
+from dotenv import load_dotenv
 
+from dotenv import load_dotenv
 app = FastAPI(title="Clearing Recon API (strict 2-file / 1-archive)")
 
 app.add_middleware(
