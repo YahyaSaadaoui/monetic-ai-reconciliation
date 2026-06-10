@@ -1,132 +1,186 @@
-# Level-4 Reversal Orchestrator
+# Monetic AI Reconciliation
 
-A **Level-4 monétique reversal orchestrator** built with [Agno](https://docs.agno.com/) agents and deterministic Python business logic.
-It evaluates reversal requests (full or partial) based on authorization state, generates atomic ledger operations, writes an audit trail, optionally posts to a webhook, and produces a human-friendly summary.
+[![Python](https://img.shields.io/badge/Python-3.9+-3776AB?logo=python&logoColor=white)](https://www.python.org/)
+[![FastAPI](https://img.shields.io/badge/FastAPI-backend-009688?logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
+[![Next.js](https://img.shields.io/badge/Next.js-15-000000?logo=nextdotjs&logoColor=white)](https://nextjs.org/)
+[![SQLite](https://img.shields.io/badge/SQLite-audit_trail-003B57?logo=sqlite&logoColor=white)](https://sqlite.org/)
 
----
+A Level-4 issuer/acquirer clearing reconciliation demo built with deterministic Python business logic and optional Agno/Gemini agent orchestration.
+
+The project compares clearing batches from issuer and acquirer sides, detects matched transactions, mismatches, duplicates, issuer-only items, and acquirer-only items, then produces operator-friendly summaries for payment operations teams.
+
+## Why This Exists
+
+In card payment operations, issuer and acquirer clearing files need to agree on key transaction data such as RRN, PAN, amount, currency, and date. When they do not match, teams need to investigate differences quickly before settlement, dispute, or accounting issues grow.
+
+This project models a small reconciliation assistant that can:
+
+- Parse issuer and acquirer clearing batches.
+- Normalize dates and amounts.
+- Match transactions by RRN.
+- Detect amount, currency, and date mismatches.
+- Flag issuer-only and acquirer-only records.
+- Produce structured metrics and human-readable summaries.
+- Optionally use an agent layer for orchestration and reporting.
 
 ## Features
 
-- **Deterministic core logic** — Always works, even with no LLM quota.
-- **Level-4 multi-agent orchestration**:
-  - **Planner Agent** — Orchestrates the workflow by calling registered tools in the correct order.
-  - **Reporter Agent** — Summarizes the final decision for stakeholders.
-- **Pydantic validation** for inputs.
-- **YAML-based rules** (expiry window, etc.).
-- **Supports JSON & XML** input formats.
-- **SQLite audit log** of all reversal decisions.
-- **Optional webhook** notification.
-- **Gemini model integration** (via Agno) for planning and summaries.
+- Deterministic reconciliation core that works without an LLM.
+- Optional Agno/Gemini layer for planner and reporter flows.
+- JSON, XML, CSV, and ZIP input support.
+- Date tolerance and amount tolerance configuration.
+- Pydantic validation for input records.
+- SQLite audit trail support.
+- FastAPI service and Next.js UI for upload-based workflows.
+- Synthetic test-data generation through `make_test_data.py`.
 
----
+## Stack
+
+| Layer | Technology |
+| --- | --- |
+| Backend | Python, FastAPI, Pydantic, SQLAlchemy |
+| Reconciliation | Deterministic matching and mismatch detection |
+| Agent layer | Agno with optional Gemini model integration |
+| UI | Next.js 15, React 19, TypeScript, Tailwind |
+| Storage | SQLite audit database |
+| Inputs | JSON, XML, CSV, ZIP |
+
+## Repository Layout
+
+```text
+.
+├── config/                    # reconciliation defaults and policy config
+├── overrides/                 # optional override examples
+├── tests/                     # synthetic input scenarios
+├── ui/                        # Next.js UI
+├── l4_clearing_recon.py       # deterministic reconciliation engine
+├── make_test_data.py          # ZIP fixture generator
+├── playground.py              # FastAPI / agent playground entrypoint
+├── ui_recon_api_only.py       # UI API adapter
+├── ui_recon_tools.py          # upload and UI tools
+├── requirements.txt
+└── readme.md
+```
 
 ## Requirements
 
 - Python 3.9+
-- [Google Gemini API key](https://aistudio.google.com/) (optional — required only for LLM planning/summaries)
+- Node.js 18+ for the UI
+- Optional: Google Gemini API key for agent-assisted summaries
 
----
+## Quick Start
 
-## Installation
-
-### 1. Clone the repository
+### 1. Clone and install backend dependencies
 
 ```bash
-git clone https://github.com/yourusername/reversal-orchestrator.git
-cd reversal-orchestrator
-2. Create and activate a virtual environment (recommended)
-bash
-Copier
-Modifier
+git clone https://github.com/YahyaSaadaoui/monetic-ai-reconciliation.git
+cd monetic-ai-reconciliation
+
 python -m venv agnoenv
+
 # Windows
 agnoenv\Scripts\activate
-# Mac/Linux
+
+# macOS/Linux
 source agnoenv/bin/activate
-(You can run without a venv, but it’s strongly recommended to avoid dependency conflicts.)
 
-3. Install dependencies
-bash
-Copier
-Modifier
 pip install -r requirements.txt
-Configuration
-Create a .env file in the project root:
-
-env
-Copier
-Modifier
-GOOGLE_API_KEY=your_gemini_api_key_here   # Optional, for LLM planning & summaries
-WEBHOOK_URL=                               # Optional, for posting results
-DB_PATH=./reversal_audit.db
-MODEL_ID=gemini-1.5-flash                  # or gemini-1.5-pro
-Review config/rules.yaml to adjust policy settings:
-
-yaml
-Copier
-Modifier
-expiry_minutes_default: 60
-amount_tolerance: 0.01
-Usage
-Run with JSON input
-bash
-Copier
-Modifier
-python l4_reversal_orchestrator.py data/reversal_ok.json
-Run with XML input
-bash
-Copier
-Modifier
-python l4_reversal_orchestrator.py data/reversal_ok.xml
-Sample Output
-When run with data/reversal_ok.json:
-
-bash
-Copier
-Modifier
-=== Level-4 Planner (Agno Agent) ===
-[Tool call logs & reasoning here]
-
-=== Deterministic Output ===
-{
-  "decision": {
-    "eligible": true,
-    "mode": "partial",
-    "reversible_amount": 80.0,
-    "actions": ["RELEASE_HOLD", "RECORD_REVERSAL", "NOTIFY_MERCHANT"],
-    "notes": "Partial reversal; release remaining hold.",
-    "meta": {...}
-  },
-  "ops": [
-    {"op": "RELEASE_HOLD", "amount": 80.0},
-    {"op": "RECORD_REVERSAL", "amount": 80.0},
-    {"op": "NOTIFY_MERCHANT", "merchant_id": "M01"}
-  ]
-}
-
-=== Human Summary ===
-Partial reversal approved: releasing $80.00 USD hold for merchant M01.
-Project Structure
-pgsql
-Copier
-Modifier
-.
-├── config/
-│   └── rules.yaml              # Policy rules
-├── data/                       # Sample case files
-│   ├── reversal_ok.json
-│   ├── reversal_expired.json
-│   └── reversal_ok.xml
-├── l4_reversal_orchestrator.py # Main orchestrator script
-├── requirements.txt
-├── .env.example
-└── README.md
-Extending the Project
-Add new rules to config/rules.yaml.
-
-Create new tool wrappers to integrate with external services (e.g., payment gateways, messaging systems).
-
-Implement batch processing for multiple case files.
-
-Wrap in a FastAPI or Flask service for HTTP API access.
 ```
+
+### 2. Configure environment
+
+Create `.env` from `.env.example`:
+
+```bash
+cp .env.example .env
+```
+
+Example values:
+
+```env
+GOOGLE_API_KEY=
+WEBHOOK_URL=
+DB_PATH=./reversal_audit.db
+MODEL_ID=gemini-1.5-flash
+DATE_TOL_DAYS=2
+```
+
+The deterministic reconciliation logic does not require `GOOGLE_API_KEY`. It is only needed for optional Gemini-powered agent behavior.
+
+### 3. Run CLI examples
+
+```bash
+python l4_clearing_recon.py tests/pair_ok/json/issuer_clearing.json tests/pair_ok/json/acquirer_clearing.json
+```
+
+Generate zipped test fixtures:
+
+```bash
+python make_test_data.py
+```
+
+### 4. Run the service/UI
+
+Start the backend:
+
+```bash
+python playground.py
+```
+
+Start the UI:
+
+```bash
+cd ui
+pnpm install
+pnpm dev -p 3000
+```
+
+Or with npm:
+
+```bash
+cd ui
+npm install
+npm run dev -- -p 3000
+```
+
+## Input Model
+
+Each clearing transaction contains:
+
+| Field | Meaning |
+| --- | --- |
+| `rrn` | Retrieval reference number used for matching |
+| `pan` | Masked PAN, for example `****1111` |
+| `amount` | Transaction amount |
+| `currency` | Currency code |
+| `date` | Clearing date |
+
+Each batch is marked or inferred as `issuer` or `acquirer`.
+
+## Reconciliation Output
+
+The engine produces:
+
+- `matched`: transactions that agree within configured tolerances.
+- `mismatches`: transactions with amount, currency, or date differences.
+- `issuer_only`: records missing from acquirer side.
+- `acquirer_only`: records missing from issuer side.
+- `metrics`: count summaries for operators.
+- `summary_md`: readable operational summary.
+
+## Good First Improvements
+
+- Add more test scenarios under `tests/`.
+- Add a README screenshot or GIF of the UI upload flow.
+- Add Docker Compose for backend + UI startup.
+- Add unit tests for duplicate RRN handling and tolerance logic.
+- Add examples for multi-currency settlement edge cases.
+- Rename the audit database variables from reversal wording to reconciliation wording.
+
+## Security Notes
+
+This is a demo project. Do not commit real card data, internal clearing files, production configs, private keys, tokens, or real customer information. Use masked PANs and synthetic transactions only.
+
+## License
+
+Add a license before using this in shared or commercial contexts.
