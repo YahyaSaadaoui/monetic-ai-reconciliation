@@ -1,10 +1,48 @@
-# Exclude environment variables files
-.env.dev
+# Local environment files and credentials (keep the safe template tracked)
+.env
+.env.*
+!.env.example
+env.dev
 
-# Exclude IDE and editor-specific directories
+# Python virtual environments and caches
+.venv/
+venv/
+agnoenv/
+.agnoenv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+.coverage.*
+coverage.xml
+htmlcov/
+*.egg-info/
+build/
+dist/
+
+# Node.js / Next.js generated files
+node_modules/
+.next/
+out/
+.pnpm-store/
+npm-debug.log*
+pnpm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Local reconciliation state, temporary output, and logs
+reversal_audit.db
+*.db-journal
+*.db-wal
+*.db-shm
+tmp/
+*.tmp
+*.log
+
+# IDE and operating-system files
 .vscode/
 .idea/
-
-# Exclude Python virtual environment directories
-.agnoenv/
-.agnoenv/*
+.DS_Store
+Thumbs.db
